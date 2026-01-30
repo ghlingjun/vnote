@@ -1,0 +1,5 @@
+# Optional: for MD->HTML when pandoc is not installed
+# Optional: for PDF via Qt WebEngine (same as VNote when not using wkhtmltopdf)
+# pip install -r requirements-export.txt
+markdown>=3.0
+# PyQt6 PyQt6-WebEngine
