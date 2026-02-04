@@ -87,14 +87,31 @@ def strip_cite_links(md_content):
     return re.sub(r"\[[^\]]*\]\(CITE\)", "", md_content, flags=re.IGNORECASE)
 
 
+def read_md_file(md_path, encoding="utf-8"):
+    """
+    Read markdown file with correct encoding. On Windows, fall back to GBK if UTF-8 fails,
+    to handle files saved with system default (e.g. GBK) instead of UTF-8.
+    """
+    try:
+        with open(md_path, "r", encoding=encoding) as f:
+            return f.read()
+    except UnicodeDecodeError:
+        if sys.platform == "win32":
+            try:
+                with open(md_path, "r", encoding="gbk") as f:
+                    return f.read()
+            except (UnicodeDecodeError, LookupError):
+                pass
+        raise
+
+
 def md_to_html_pandoc(md_path, html_path, encoding="utf-8"):
     """Convert MD to HTML using pandoc. Returns True on success."""
     pandoc = find_pandoc()
     if not pandoc:
         return False
     try:
-        with open(md_path, "r", encoding=encoding) as f:
-            content = f.read()
+        content = read_md_file(md_path, encoding)
         content = strip_cite_links(content)
         cwd = os.path.dirname(os.path.abspath(md_path))
         cmd = [
@@ -105,15 +122,15 @@ def md_to_html_pandoc(md_path, html_path, encoding="utf-8"):
             "--metadata", "title=" + os.path.splitext(os.path.basename(md_path))[0],
             "-o", html_path,
         ]
+        # Use binary stdin and send UTF-8 bytes so pandoc gets correct encoding on Windows
         proc = subprocess.Popen(
             cmd,
             stdin=subprocess.PIPE,
             cwd=cwd,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            universal_newlines=True,
         )
-        _, err = proc.communicate(input=content, timeout=60)
+        out, err = proc.communicate(input=content.encode("utf-8"), timeout=60)
         return proc.returncode == 0 and os.path.isfile(html_path)
     except Exception:
         return False
@@ -124,8 +141,7 @@ def md_to_html_markdown_lib(md_path, html_path, encoding="utf-8"):
     if not HAS_MARKDOWN:
         return False
     try:
-        with open(md_path, "r", encoding=encoding) as f:
-            text = f.read()
+        text = read_md_file(md_path, encoding)
         text = strip_cite_links(text)
         html = markdown.markdown(
             text,
