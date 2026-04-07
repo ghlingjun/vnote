@@ -119,7 +119,7 @@ def md_to_html_pandoc(md_path, html_path, encoding="utf-8"):
             "-f", "markdown+smart+raw_html",
             "-t", "html",
             "--standalone",
-            "--metadata", "title=" + os.path.splitext(os.path.basename(md_path))[0],
+            "--metadata", "title=",
             "-o", html_path,
         ]
         # Use binary stdin and send UTF-8 bytes so pandoc gets correct encoding on Windows
@@ -148,11 +148,10 @@ def md_to_html_markdown_lib(md_path, html_path, encoding="utf-8"):
             extensions=["extra", "codehilite", "toc", "tables"],
             extension_configs={"codehilite": {"css_class": "highlight"}},
         )
-        base = os.path.splitext(os.path.basename(md_path))[0]
         full = (
             "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/>"
-            "<title>{}</title></head><body>{}</body></html>"
-        ).format(base, html)
+            "<title></title></head><body>{}</body></html>"
+        ).format(html)
         with open(html_path, "w", encoding=encoding) as f:
             f.write(full)
         return True
@@ -501,9 +500,8 @@ def main():
                     with open(html_path, "r", encoding="utf-8") as f:
                         body_content = _extract_body_inner_html(f.read())
                     style_content = _build_theme_styles_string(web_css, highlight_css)
-                    title = os.path.splitext(os.path.basename(md_path))[0]
                     apply_vnote_export_template(html_path, template_path, body_content,
-                                                style_content, title)
+                                                style_content, "")
             else:
                 inject_styles_into_html(html_path, web_css, highlight_css)
             cwd = os.path.dirname(os.path.abspath(md_path))
