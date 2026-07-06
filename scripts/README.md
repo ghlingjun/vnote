@@ -78,7 +78,7 @@ scripts\batch_export_md_to_pdf.cmd -o pdf_out -r notes
 
 ```bash
 # 导出指定目录下所有 .md 到 pdf_out（不递归子目录）
-python scripts/batch_export_md_to_pdf.py -o "D:\\workspace\\python\\output" "D:\\workspace\\python\\output"
+python scripts/batch_export_md_to_pdf.py -o "D:\\workspace\\python\\tools\\output" "D:\\workspace\\python\\tools\\output"
 python scripts/batch_export_md_to_pdf.py -o "D:\workspace\python\tools\output\enterprise_evaluation" "D:\workspace\python\tools\output"
 
 # 默认：Qt WebEngine + pure 主题
